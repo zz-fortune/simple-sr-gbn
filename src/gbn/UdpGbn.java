@@ -10,7 +10,7 @@ import segment.Segment;
 
 public class UdpGbn {
 
-	private static final int MAX_LENGTH = 1024;
+	private static final int MAX_LENGTH = 1024; // 单个消息的最大数据长度
 
 	private String remoteHost; // 通信另一方的主机
 	private int remotePort; // 通信另一方的端口
@@ -96,7 +96,7 @@ public class UdpGbn {
 			}
 			try {
 				while (sendWin.send(segment) == -1) { // 如果发送失败，则过一会再试。
-					Thread.sleep(20);
+					Thread.sleep(10);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -114,25 +114,6 @@ public class UdpGbn {
 	 * @return 读入的字节数
 	 */
 	public int recieve(byte[] buf) {
-
-		int read = reservesize > buf.length ? buf.length : reservesize;
-		for (int i = 0; i < read; i++) {
-			buf[i] = reserve[i];
-		}
-		reservesize-=read;
-
-		if ((recieveWin == null) && read == 0) {
-			return -1;
-		}
-		
-		Segment segment = recieveWin.revieve();
-		if ((segment == null) && read == 0) {
-			return -1;
-		}else if () {
-			
-		}
-		
-		
 
 		// 如果缓存的数据大于请求的数据，直接满足请求
 		int read;
@@ -155,16 +136,17 @@ public class UdpGbn {
 
 		// 从接收窗口请求数据
 		Segment segment = recieveWin.revieve();
-		if ((segment == null) && reservesize == 0) {
+		if ((segment == null) && reservesize == 0) { // 没有任何数据则返回
 			return -1;
 		}
-		byte[] bs = segment.getBytes();
-		int size = segment == null ? reservesize : segment.getLength() + reservesize;
-		read = size > buf.length ? buf.length : size;
-		if (read < reservesize) {
-			for (int i = 0; i < reservesize; i++) {
-				buf[i] = reserve[i];
-			}
+
+		int size = segment == null ? reservesize : segment.getLength() + reservesize; // 记录数据的总数
+		read = size > buf.length ? buf.length : size; // 判断本次可读的数据量
+		for (int i = 0; i < reservesize; i++) { // 将缓存的数据写入
+			buf[i] = reserve[i];
+		}
+		if (segment!=null) { // 如果从发送窗口请求到了消息，则写入
+			byte[] bs = segment.getBytes();
 			for (int i = reservesize; i < read; i++) {
 				buf[i] = bs[i - reservesize + 3];
 			}
@@ -172,8 +154,8 @@ public class UdpGbn {
 			for (int i = read - reservesize; i < size; i++) {
 				reserve[index++] = bs[i];
 			}
-			reservesize = size - read;
 		}
+		reservesize = size - read;
 		return read;
 	}
 

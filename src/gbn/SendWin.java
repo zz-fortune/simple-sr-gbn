@@ -71,13 +71,13 @@ public class SendWin {
 	public void timeOut() throws IOException {
 
 		System.out.println("time out...resend..." + socket.getLocalPort());
-
-		for (int i = base; i < (current + SIZE - base) % SIZE; i++) {
+		int end=base+(current + SIZE - base) % SIZE;  // 计算已发送的数量加上base
+		for (int i = base; i < end; i++) {
 			int t = i % SIZE;
 			DatagramPacket packet = new DatagramPacket(buffer[t].getBytes(), buffer[t].getLength() + 3,
 					InetAddress.getByName(remoteHost), remotePort);
 			socket.send(packet);
-
+			
 			System.out.println("resend segment " + buffer[t].getSeqnum() + "..." + socket.getLocalPort());
 		}
 	}

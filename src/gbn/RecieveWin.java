@@ -25,7 +25,7 @@ public class RecieveWin extends Thread {
 	private int SEQ_SIZE = 256;   // sequence number 的最大范围
 	private List<Segment> buffer = new ArrayList<>();  //接收缓存区
 	private boolean available = true;  //缓存区是否可用
-	private SendWin sendWin;         //发送窗口
+	private SendWin sendWin; // 发送窗口
 	private DatagramSocket socket;   // udp的接口
 	private UdpGbn gbn;             // GBN协议实现的接口
 

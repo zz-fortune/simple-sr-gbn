@@ -25,7 +25,7 @@ public class Timer extends Thread {
 	@Override
 	public void run() {
 		while (true) {
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size; i++) {  // 依次查看为发送缓存区每个位置设置的计时器
 				int time = models[i].getTime();
 				if (time != Model.STOP) { // 若在正常计时
 					if (time > 0) {
